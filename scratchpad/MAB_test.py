@@ -1,64 +1,46 @@
 
 from random import random, uniform, choice
 
-class Creative():
-    ad_list = []
 
-    def __init__(self, name, rate=random(), reward=uniform(1,10)):
-        self.name = name
-        self.reward = reward
-        self.rate = rate
-        self.sum_rewards = 0.0
-        self.clicks = 0
-        self.displays = 0
-        self.Q = 0
-        self.__class__.ad_list.append(self)
+from py_classes.epsilon_greedy_class import Creative
 
-    def is_clicked(self):
-        self.displays += 1
-        if random() < self.rate:
-            self.clicks += 1
-            return True
-        else:
-            return False
+Creative.reset_ads()
 
-    def get_reward(self):
-        if self.is_clicked():
-            self.sum_rewards += self.reward
-            return self.reward
-        else:
-            return 0
-
-    def calc_Q(self):
-        if self.displays == 0:
-            return 0
-        else:
-            self.Q = self.sum_rewards / self.displays
-            return self.Q
-
-    @classmethod
-    def epsilon_greedy(cls, epsilon):
-        if random() < epsilon:
-            return choice(cls.ad_list)
-        else:
-            max = -1
-            for ad in cls.ad_list:
-                if ad.calc_Q() > max:
-                    max = ad.Q
-                    top_performer = ad
-            return top_performer
-
-    @classmethod
-    def reset_ads(cls):
-        cls.ad_list = []
+ad_1 = Creative('puppies', random(), uniform(1,10))
+ad_2 = Creative('cats', random(), uniform(1,10))
+ad_3 = Creative('elephants', random(), uniform(1,10))
+ad_4 = Creative('bears', random(), uniform(1,10))
+ad_5 = Creative('rhinos', random(), uniform(1,10))
+# ad_5 = Creative('sports', .2, 10)
 
 
+ad_1.rate = random()
+ad_1.reward = uniform(1,10)
+ad_2.rate = random()
+ad_2.reward = uniform(1,10)
+ad_3.rate = random()
+ad_3.reward = uniform(1,10)
+ad_4.rate = random()
+ad_4.reward = uniform(1,10)
 
-ad_1 = Creative('puppies')
-ad_2 = Creative('cats')
-ad_3 = Creative('elephants')
-ad_4 = Creative('bears')
-ad_5 = Creative('sports', .2, 10)
+# Creative.history.head(20)
+#
+# Creative.history.tail()
+
+
+Creative.simulate_n(epsilon=0.7, n_steps=500)
+
+Creative.history[['eg_rev', 'rand_rev']].sum(axis=0)
+
+import plotly.express as px
+
+running_total = Creative.history[['eg_rev', 'rand_rev']].cumsum()
+
+x = running_total.stack().reset_index().rename({'level_0':'step', 'level_1':'type', 0:'Running Total'}, axis=1)
+
+px.line(x, x='step', y="Running Total", color='type')
+
+
 
 for i in range(100):
     ad = Creative.epsilon_greedy(.5)
@@ -73,7 +55,43 @@ ad_3.Q
 ad_4.Q
 ad_5.Q
 
+ad_1.reward
+ad_2.reward
+ad_3.reward
+ad_4.reward
+ad_5.reward
+
+
+
+ad_1.calc_rate()
+
+ad_1.calc_Q()
 ad_1.displays
 ad_2.displays
 ad_3.displays
 ad_4.displays
+
+x = [1,2,3]
+y = ['a', 'b', 'c']
+
+for n, l in enumerate(zip(x,y)):
+    print(f'{n}: {l}')
+
+
+x = 1
+
+x += 1 if not True else 0
+x
+x += 1 if not False else 0
+x
+
+
+import pandas as pd
+x = pd.DataFrame(columns=['eg_pick', 'ran_pick', 'eg_rev', 'rand_rev'], index=[0], data=[[0,0,0,0]])
+
+step = 1
+x.loc[1,'eg_pick'] = 1
+x.loc[1,'ran_pick'] = 2
+x
+
+x.index.max()
